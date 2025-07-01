@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Timetables - Smart Timetable Suggestion App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+</head>
+<body class="bg-gradient-to-br from-indigo-200 via-blue-100 to-purple-200 min-h-screen flex">
+    <aside class="w-64 bg-white/70 backdrop-blur-md shadow-xl border-r border-indigo-100 flex flex-col py-8 px-4 min-h-screen">
+        <div class="flex flex-col items-center mb-10">
+            <div class="bg-indigo-500 rounded-full h-16 w-16 flex items-center justify-center text-3xl font-bold mb-2 text-white border-4 border-indigo-200">
+                <span>{{ session['name'][0]|upper }}</span>
+            </div>
+            <div class="text-lg font-semibold text-indigo-800">{{ session['name'] }}</div>
+        </div>
+        <nav class="flex flex-col gap-4">
+            <a href="/dashboard" class="py-2 px-4 rounded hover:bg-indigo-100 transition flex items-center gap-2 text-indigo-700"><i class="fa-solid fa-house"></i> Dashboard</a>
+            <a href="/create_timetable" class="py-2 px-4 rounded hover:bg-indigo-100 transition flex items-center gap-2 text-indigo-700"><i class="fa-solid fa-calendar-plus"></i> Create Timetable</a>
+            <a href="/your_timetables" class="py-2 px-4 rounded hover:bg-indigo-100 transition flex items-center gap-2 text-indigo-700"><i class="fa-solid fa-table-list"></i> Your Timetables</a>
+            <a href="/tasks" class="py-2 px-4 rounded hover:bg-indigo-100 transition flex items-center gap-2 text-indigo-700"><i class="fa-solid fa-list-check"></i> Tasks</a>
+            <a href="/logout" class="py-2 px-4 rounded hover:bg-red-100 transition flex items-center gap-2 text-red-600"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        </nav>
+    </aside>
+    <main class="flex-1 p-12">
+        <h2 class="text-3xl font-extrabold text-indigo-700 mb-10 text-center drop-shadow-lg">Your Timetables</h2>
+        <div class="flex flex-col gap-10 max-w-4xl mx-auto">
+            {% for t in timetables %}
+            <div class="relative bg-white/70 backdrop-blur-lg rounded-3xl shadow-2xl p-10 flex flex-col items-center border border-indigo-100">
+                <form action="/timetable/delete/{{ t._id }}" method="POST" class="absolute top-4 right-4">
+                    <button type="submit" title="Delete timetable" class="backdrop-blur-md bg-white/40 border border-rose-100 shadow-lg rounded-full p-2 text-rose-400 hover:text-rose-500 hover:bg-white/70 transition text-2xl flex items-center justify-center">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                </form>
+                <h3 class="text-2xl font-semibold text-indigo-700 mb-4">{{ t.title }}</h3>
+                <div id="timetable-{{ t._id }}" class="overflow-x-auto w-full mb-4">
+                    <table class="min-w-full border border-indigo-300 rounded-lg text-sm">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-2 border-b bg-indigo-100">Day</th>
+                                {% if t.timetable[0] %}
+                                    {% for slot in t.timetable[0]['slots'] %}
+                                        <th class="px-4 py-2 border-b bg-indigo-100">{{ slot.from }} - {{ slot.to }}</th>
+                                    {% endfor %}
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in t.timetable %}
+                            <tr>
+                                <td class="px-4 py-2 border-b font-semibold">{{ row.day }}</td>
+                                {% for slot in row.slots %}
+                                <td class="px-4 py-2 border-b">
+                                    <div class="font-medium">{{ slot.subject }}</div>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <button onclick="downloadTimetable('{{ t._id }}', '{{ t.title|replace(' ', '_') }}')" class="mt-2 bg-indigo-600 text-white px-6 py-2 rounded-xl hover:bg-indigo-700 transition text-base shadow flex items-center gap-2"><i class="fa-solid fa-download"></i> Download as PNG</button>
+            </div>
+            {% else %}
+            <div class="col-span-full text-center text-gray-500">No timetables found. Create one!</div>
+            {% endfor %}
+        </div>
+    </main>
+    <script>
+        function downloadTimetable(id, title) {
+            html2canvas(document.getElementById('timetable-' + id)).then(function(canvas) {
+                var link = document.createElement('a');
+                link.download = title + '_timetable.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html> 

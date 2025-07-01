@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Generated Timetable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+</head>
+<body class="bg-gradient-to-br from-indigo-200 via-blue-100 to-purple-200 min-h-screen flex flex-col items-center justify-center p-8">
+    <div class="w-full max-w-6xl min-h-[700px] bg-white/70 backdrop-blur-lg rounded-3xl shadow-2xl p-12 mb-6 flex items-center justify-center border border-indigo-100">
+        <div class="w-full">
+            <h2 class="text-3xl font-extrabold text-indigo-700 mb-8 text-center drop-shadow-lg">{{ title }} - Timetable</h2>
+            <div id="timetable-table" class="overflow-x-auto">
+                <table class="min-w-full border border-indigo-300 rounded-lg">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2 border-b bg-indigo-100">Day</th>
+                            {% if timetable[0] %}
+                                {% for slot in timetable[0]['slots'] %}
+                                    <th class="px-4 py-2 border-b bg-indigo-100">{{ slot.from }} - {{ slot.to }}</th>
+                                {% endfor %}
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in timetable %}
+                        <tr>
+                            <td class="px-4 py-2 border-b font-semibold">{{ row.day }}</td>
+                            {% for slot in row.slots %}
+                            <td class="px-4 py-2 border-b">
+                                <div class="font-medium">{{ slot.subject }}</div>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <button onclick="downloadPNG()" class="mt-6 bg-indigo-600 text-white px-6 py-2 rounded-xl hover:bg-indigo-700 transition shadow flex items-center gap-2"><i class="fa-solid fa-download"></i> Download as PNG</button>
+            <a href="/dashboard" class="ml-4 text-indigo-600 hover:underline">Back to Dashboard</a>
+        </div>
+    </div>
+    <script>
+        function downloadPNG() {
+            html2canvas(document.getElementById('timetable-table')).then(function(canvas) {
+                var link = document.createElement('a');
+                link.download = '{{ title|replace(' ', '_') }}_timetable.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html> 
