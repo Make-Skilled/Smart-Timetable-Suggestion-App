@@ -55,9 +55,3 @@ python app.py
 - `requirements.txt` - Python dependencies.
 - `templates/` - HTML templates for the web interface.
 
-
-## License
-MIT License
-
-## Contact
-For questions or suggestions, please contact the maintainer at your-email@example.com. 
